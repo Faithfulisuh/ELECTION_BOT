@@ -7,8 +7,16 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import time
 import logging
+# from config import TELEGRAM_BOT_TOKEN, SPREADSHEET_ID
 
-from config import TELEGRAM_BOT_TOKEN, SPREADSHEET_ID
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Access the variables
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
 
 # Configure logging
 logging.basicConfig(
