@@ -7,8 +7,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import time
 import logging
-# from config import TELEGRAM_BOT_TOKEN, SPREADSHEET_ID
-
+import asyncio
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -85,21 +84,9 @@ def verify_voter(email, name, code):
     """Verify if voter credentials are valid."""
     emails, names, codes = load_voter_data()
     
-    # Check if email exists and corresponds to the name and code
     if email in emails:
-        # email_index = emails.index(email)
-        # if (email_index < len(names) and email_index < len(codes) and
-            # names[email_index].lower() == name.lower() and
-            # codes[email_index] == code):
         return True
     return False
-    # if email in emails:
-        # email_index = emails.index(email)
-        # if (email_index < len(names) and email_index < len(codes) and
-            # names[email_index].lower() == name.lower() and
-            # codes[email_index] == code):
-            # return True
-    # return False
 
 def store_vote(sheet, chat_id, email, name, votes):
     """Store vote in Google Sheets."""
@@ -144,7 +131,6 @@ async def handle_email(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle email input."""
     email = update.message.text.strip().lower()
     
-    # Basic email validation
     if '@' not in email or '.' not in email:
         await update.message.reply_text(
             "❌ Please enter a valid email address:"
@@ -160,7 +146,6 @@ async def handle_email(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_verification(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle name and verification."""
     if 'verification_step' not in context.user_data:
-        # First step: get name
         context.user_data['name'] = update.message.text.strip()
         context.user_data['verification_step'] = 'code'
         await update.message.reply_text(
@@ -168,7 +153,6 @@ async def handle_verification(update: Update, context: ContextTypes.DEFAULT_TYPE
         )
         return WAITING_FOR_VERIFICATION
     else:
-        # Second step: get verification code
         code = update.message.text.strip()
         email = context.user_data['email']
         name = context.user_data['name']
@@ -179,7 +163,6 @@ async def handle_verification(update: Update, context: ContextTypes.DEFAULT_TYPE
             context.user_data['verified'] = True
             user_votes[user_id] = {}
             
-            # Setup Google Sheets
             context.user_data['sheet'] = setup_google_sheets()
             if not context.user_data['sheet']:
                 await update.message.reply_text(
@@ -337,7 +320,6 @@ async def handle_do_sports_vote(update: Update, context: ContextTypes.DEFAULT_TY
     user_id = update.effective_user.id
     user_votes[user_id]['do_sports'] = vote.capitalize()
     
-    # Store all votes in Google Sheets
     sheet = context.user_data.get('sheet')
     if sheet:
         success = store_vote(
@@ -401,6 +383,26 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "**Note:** You can only vote once per election."
     )
 
+async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle errors, including Conflict errors."""
+    logger.error(f"Update {update} caused error {context.error}")
+    if isinstance(context.error, telegram.error.Conflict):
+        logger.warning("Conflict detected, retrying in 10 seconds...")
+        await asyncio.sleep(10)
+
+async def run_with_retries(application):
+    """Run the bot with retries to handle conflicts."""
+    for _ in range(MAX_RETRIES):
+        try:
+            await application.run_polling(allowed_updates=Update.ALL_TYPES)
+        except telegram.error.Conflict:
+            logger.warning("Conflict detected, retrying in 10 seconds...")
+            await asyncio.sleep(10)
+        else:
+            break
+    else:
+        logger.error("Max retries reached, please check for multiple instances or contact support.")
+
 def main():
     """Run the bot."""
     # Create conversation handler
@@ -426,12 +428,15 @@ def main():
     # Add handlers
     application.add_handler(conv_handler)
     application.add_handler(CommandHandler('help', help_command))
+    application.add_error_handler(error_handler)
     
-    # Run the bot
+    # Stop any previous bot instances
+    print("🤖 Stopping any previous bot instances...")
+    asyncio.run(application.stop())
+    
+    # Run the bot with retries
     print("🤖 Election Voting Bot is starting...")
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    asyncio.run(run_with_retries(application))
 
 if __name__ == "__main__":
     main()
-
-
