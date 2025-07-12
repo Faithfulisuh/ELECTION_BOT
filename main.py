@@ -87,10 +87,8 @@ def verify_voter(email, name, code):
     
     # Check if email exists and corresponds to the name and code
     if email in emails:
-        # email_index = emails.index(email)
-        # if (email_index < len(names) and email_index < len(codes) and
-            # names[email_index].lower() == name.lower() and
-            # codes[email_index] == code):
+        email_index = emails.index(email)
+        if (email_index < len(names) and email_index < len(codes) and codes[email_index] == code):
         return True
     return False
     # if email in emails:
@@ -134,7 +132,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return ConversationHandler.END
     
     await update.message.reply_text(
-        "🗳️ Welcome to the Election Voting Platform!\n\n"
+        "🗳️ Welcome to the NADEESTU Election Voting Platform!\n\n"
         "To participate in the election, you need to authenticate yourself.\n"
         "Please enter your registered email address:"
     )
@@ -145,7 +143,7 @@ async def handle_email(update: Update, context: ContextTypes.DEFAULT_TYPE):
     email = update.message.text.strip().lower()
     
     # Basic email validation
-    if '@' not in email or '.' not in email:
+    if '@' not in email or '.' not in email and email not in emails:
         await update.message.reply_text(
             "❌ Please enter a valid email address:"
         )
