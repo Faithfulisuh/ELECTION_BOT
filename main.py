@@ -147,7 +147,7 @@ async def handle_vice_president_vote(update: Update, context: ContextTypes.DEFAU
         return VOTING_VICE_PRESIDENT
     user_id = update.effective_user.id
     user_votes[user_id]['vice_president'] = vote
-    await update.message.reply_text("Rachel for Assistant Secretary: Vote Yes or No", reply_markup=ReplyKeyboardRemove())
+    await update.message.reply_text("Rachel for Assistant General Secretary: Vote Yes or No", reply_markup=ReplyKeyboardRemove())
     return VOTING_ASSISTANT_SECRETARY
 
 async def handle_assistant_secretary_vote(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -157,7 +157,7 @@ async def handle_assistant_secretary_vote(update: Update, context: ContextTypes.
         return VOTING_ASSISTANT_SECRETARY
     user_id = update.effective_user.id
     user_votes[user_id]['assistant_secretary'] = vote.capitalize()
-    await update.message.reply_text("Lionel for PRO: Vote Yes or No")
+    await update.message.reply_text("Lionel for Public Relations Officer: Vote Yes or No")
     return VOTING_PRO
 
 async def handle_pro_vote(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -167,18 +167,18 @@ async def handle_pro_vote(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return VOTING_PRO
     user_id = update.effective_user.id
     user_votes[user_id]['pro'] = vote.capitalize()
-    await update.message.reply_text("Marvellous for DO Socials: Vote Yes or No")
-    return VOTING_DO_SOCIALS
-
-async def handle_do_socials_vote(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    vote = update.message.text.strip().lower()
-    if vote not in ['yes', 'no']:
-        await update.message.reply_text("Vote Yes or No only:")
-        return VOTING_DO_SOCIALS
-    user_id = update.effective_user.id
-    user_votes[user_id]['do_socials'] = vote.capitalize()
-    await update.message.reply_text("AbleGod for DO Sports: Vote Yes or No")
+    await update.message.reply_text("AbleGod for Director of Sports: Vote Yes or No")
     return VOTING_DO_SPORTS
+
+# async def handle_do_socials_vote(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # vote = update.message.text.strip().lower()
+    # if vote not in ['yes', 'no']:
+        # await update.message.reply_text("Vote Yes or No only:")
+        # return VOTING_DO_SOCIALS
+    # user_id = update.effective_user.id
+    # user_votes[user_id]['do_socials'] = vote.capitalize()
+    # await update.message.reply_text("AbleGod for Director of Sports: Vote Yes or No")
+    # return VOTING_DO_SPORTS
 
 async def handle_do_sports_vote(update: Update, context: ContextTypes.DEFAULT_TYPE):
     vote = update.message.text.strip().lower()
@@ -221,7 +221,7 @@ def main():
             VOTING_VICE_PRESIDENT: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_vice_president_vote)],
             VOTING_ASSISTANT_SECRETARY: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_assistant_secretary_vote)],
             VOTING_PRO: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_pro_vote)],
-            VOTING_DO_SOCIALS: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_do_socials_vote)],
+            # VOTING_DO_SOCIALS: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_do_socials_vote)],
             VOTING_DO_SPORTS: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_do_sports_vote)],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
