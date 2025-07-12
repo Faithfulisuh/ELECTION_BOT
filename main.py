@@ -87,9 +87,9 @@ def verify_voter(email, name, code):
     
     # Check if email exists and corresponds to the name and code
     if email in emails:
-        email_index = emails.index(email)
-        if (email_index < len(names) and email_index < len(codes) and codes[email_index] == code):
-        return True
+       email_index = emails.index(email)
+       if (email_index < len(names) and email_index < len(codes) and codes[email_index] == code):
+          return True
     return False
     # if email in emails:
         # email_index = emails.index(email)
