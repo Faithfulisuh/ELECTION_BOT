@@ -87,9 +87,9 @@ def verify_voter(email, name, code):
     
     # Check if email exists and corresponds to the name and code
     if email in emails:
-       email_index = emails.index(email)
-       if (email_index < len(names) and email_index < len(codes) and codes[email_index] == code):
-          return True
+       # email_index = emails.index(email)
+       # if (email_index < len(names) and email_index < len(codes) and codes[email_index] == code):
+       return True
     return False
     # if email in emails:
         # email_index = emails.index(email)
@@ -143,8 +143,7 @@ async def handle_email(update: Update, context: ContextTypes.DEFAULT_TYPE):
     email = update.message.text.strip().lower()
     
     # Basic email validation
-    emails, names, codes = load_voter_data()
-    if not email or email not in emails or '@' not in email or '.' not in email:
+    if '@' not in email or '.' not in email:
         await update.message.reply_text(
             "❌ Please enter a valid email address:"
         )
