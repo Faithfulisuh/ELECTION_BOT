@@ -143,8 +143,8 @@ async def handle_email(update: Update, context: ContextTypes.DEFAULT_TYPE):
     email = update.message.text.strip().lower()
     
     # Basic email validation
-    emails, _, _ = load_voter_data()
-    if '@' not in email or '.' not in email and email not in emails:
+    emails, names, codes = load_voter_data()
+    if not email or email not in emails or '@' not in email or '.' not in email:
         await update.message.reply_text(
             "❌ Please enter a valid email address:"
         )
